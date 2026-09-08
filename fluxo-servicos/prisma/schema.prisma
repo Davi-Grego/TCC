@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Papel {
+  CONTRATANTE
+  CONTRATADO
+  ADMIN
+}
+
+enum StatusContratacao {
+  PENDENTE
+  ACEITA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum StatusDenuncia {
+  PENDENTE
+  ANALISADA
+  RESOLVIDA
+}
+
+model Usuario {
+  id          String    @id @default(uuid())
+  nome        String
+  email       String    @unique
+  firebaseUid String    @unique
+  papel       Papel
+  bloqueado   Boolean   @default(false)
+  bloqueadoEm DateTime?
+  criadoEm    DateTime  @default(now())
+
+  perfil       Perfil?
+  servicos     Servico[]     @relation("ServicosDoContratado")
+  contratacoes Contratacao[] @relation("ContratacoesDoContratante")
+  avaliacoes   Avaliacao[]   @relation("AvaliacoesEscritas")
+  denuncias    Denuncia[]    @relation("DenunciasFeitas")
+  notificacoes Notificacao[]
+}
+
+model Perfil {
+  id          String  @id @default(uuid())
+  usuario     Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId   String  @unique
+  bio         String?
+  fotoUrl     String?
+  telefone    String?
+  localizacao String?
+}
+
+model Categoria {
+  id       String    @id @default(uuid())
+  nome     String    @unique
+  servicos Servico[]
+}
+
+model Servico {
+  id           String    @id @default(uuid())
+  contratado   Usuario   @relation("ServicosDoContratado", fields: [contratadoId], references: [id])
+  contratadoId String
+  categoria    Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId  String
+  titulo       String
+  descricao    String
+  preco        Float
+  criadoEm     DateTime  @default(now())
+
+  contratacoes Contratacao[]
+}
+
+model Contratacao {
+  id            String            @id @default(uuid())
+  servico       Servico           @relation(fields: [servicoId], references: [id])
+  servicoId     String
+  contratante   Usuario           @relation("ContratacoesDoContratante", fields: [contratanteId], references: [id])
+  contratanteId String
+  status        StatusContratacao @default(PENDENTE)
+  criadoEm      DateTime          @default(now())
+  concluidoEm   DateTime?
+
+  avaliacoes Avaliacao[]
+}
+
+model Avaliacao {
+  id            String      @id @default(uuid())
+  contratacao   Contratacao @relation(fields: [contratacaoId], references: [id])
+  contratacaoId String
+  autor         Usuario     @relation("AvaliacoesEscritas", fields: [autorId], references: [id])
+  autorId       String
+  nota          Int
+  comentario    String?
+  criadoEm      DateTime    @default(now())
+}
+
+model Denuncia {
+  id            String         @id @default(uuid())
+  denunciante   Usuario        @relation("DenunciasFeitas", fields: [denuncianteId], references: [id])
+  denuncianteId String
+  alvoTipo      String
+  alvoId        String
+  motivo        String
+  status        StatusDenuncia @default(PENDENTE)
+  criadoEm      DateTime       @default(now())
+}
+
+model Notificacao {
+  id        String   @id @default(uuid())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+  mensagem  String
+  lida      Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+}
