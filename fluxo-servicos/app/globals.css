@@ -1,10 +1,37 @@
 @import "tailwindcss";
 
-@theme {
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+:root {
+--background: #f7f8fc;
+--foreground: #010300;
 }
 
 body {
-  background-color: #f7f8fc;
-  color: #010300;
+color: var(--foreground);
+background: var(--background);
+font-family: var(--font-jetbrains-mono), monospace;
+}
+
+/* STREAMING_CHUNK:Aplicando a fonte globalmente... /
+/ Enforcing JetBrains Mono for everything based on your request */
+h1, h2, h3, h4, h5, h6, p, span, a, button {
+font-family: var(--font-jetbrains-mono), monospace;
+}
+
+/* STREAMING_CHUNK:Estilizando a barra de rolagem... /
+/ Custom Scrollbar styled for the new palette */
+::-webkit-scrollbar {
+width: 8px;
+}
+
+::-webkit-scrollbar-track {
+background: #f7f8fc;
+}
+
+::-webkit-scrollbar-thumb {
+background: #314c53;
+border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: #5a7f78;
 }

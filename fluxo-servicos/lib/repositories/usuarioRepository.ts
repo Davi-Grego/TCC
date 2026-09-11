@@ -7,7 +7,11 @@ export const usuarioRepository = {
 
   criar(dados: { firebaseUid: string; email: string; nome: string }) {
     return prisma.usuario.create({
-      data: { ...dados, papel: "CONTRATANTE" },
+      data: {
+        ...dados,
+        papel: "CONTRATANTE",
+        perfil: { create: {} },
+      },
     });
   },
 
@@ -28,8 +32,4 @@ export const usuarioRepository = {
       data: { bloqueado: false, bloqueadoEm: null },
     });
   },
-
-  
-
-  
 };

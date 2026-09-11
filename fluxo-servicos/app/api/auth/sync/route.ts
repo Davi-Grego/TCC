@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authService, ContaBloqueadaError, TokenInvalidoError } from "@/lib/services/authService";
 
-// Rota fina: só recebe o request e devolve a response.
-// Toda a regra fica no service.
 export async function POST(req: NextRequest) {
   const { token } = await req.json();
 
