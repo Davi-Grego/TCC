@@ -1,47 +1,26 @@
-import {prisma } from "@/lib/prisma";
-
-
-// model Avaliacao {
-//   id            String      @id @default(uuid())
-//   contratacao   Contratacao @relation(fields: [contratacaoId], references: [id])
-//   contratacaoId String
-//   autor         Usuario     @relation("AvaliacoesEscritas", fields: [autorId], references: [id])
-//   autorId       String
-//   nota          Int
-//   comentario    String?
-//   criadoEm      DateTime    @default(now())
-// }
+import { prisma } from "@/lib/prisma";
 
 export const avaliacaoRepository = {
+  create_avaliacao(dados: {
+    contratacaoId: string;
+    autorId: string;
+    nota: number;
+    comentario: string | null;
+  }) {
+    return prisma.avaliacao.create({ data: dados });
+  },
 
-    async create_avaliacao(contratacaoId: string, autorId: string, nota: number, comentario?: string) {
-        return await prisma.avaliacao.create({
-            data: {
-                contratacaoId,
-                autorId,
-                nota,
-                comentario
-            }
-        });
-    },
+  get_avaliacao_by_autor(contratacaoId: string, autorId: string) {
+    return prisma.avaliacao.findUnique({
+      where: { contratacaoId_autorId: { contratacaoId, autorId } },
+    });
+  },
 
-    async get_avaliacoes_by_contratacao(contratacaoId: string) {
-        return await prisma.avaliacao.findMany({
-            where: {
-                contratacaoId
-            }
-        });
-    },
-
-    async get_avaliacoes_by_autor(autorId: string) {
-        return await prisma.avaliacao.findMany({
-            where: {
-                autorId
-            }
-        });
-    }    
-
-
-
-
+  get_avaliacoes_by_contratacao(contratacaoId: string) {
+    return prisma.avaliacao.findMany({
+      where: { contratacaoId },
+      include: { autor: { select: { id: true, nome: true } } },
+      orderBy: { criadoEm: "desc" },
+    });
+  },
 };

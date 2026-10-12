@@ -104,5 +104,8 @@ export const servicoRepository = {
     });
   },
 
+  contar_contratacoes(servicoId: string) {
+  return prisma.contratacao.count({ where: { servicoId } });
+  },
 
 };

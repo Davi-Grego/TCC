@@ -1,64 +1,51 @@
 import { prisma } from "@/lib/prisma";
 import { StatusContratacao } from "@prisma/client";
 
+const includeResumo = {
+  servico: { select: { id: true, titulo: true, preco: true, contratadoId: true } },
+  contratante: { select: { id: true, nome: true } },
+} as const;
 
 export const contratacaoRepository = {
+  create_contratacao(dados: { servicoId: string; contratanteId: string }) {
+    return prisma.contratacao.create({ data: dados, include: includeResumo });
+  },
 
-    create_contratacao(dados: {
-        servicoId: string;
-        contratanteId: string;
-        contratadoId: string;
-        status: StatusContratacao;
-        
-    }) {
-        return prisma.contratacao.create({
-            data: dados,
-        });
-    },
+  get_contratacao_by_id(id: string) {
+    return prisma.contratacao.findUnique({ where: { id }, include: includeResumo });
+  },
 
-    update_status(id: string, status: StatusContratacao) {
-        return prisma.contratacao.update({
-            where: { id },
-            data: { status },
-        });
-    },
+  update_contratacao(id: string, dados: { status: StatusContratacao; concluidoEm?: Date }) {
+    return prisma.contratacao.update({ where: { id }, data: dados, include: includeResumo });
+  },
 
-    get_contratacao_by_usuarioId(usuarioId: string, page = 1, pageSize = 20) {
-        const skip = (page - 1) * pageSize;
-        return prisma.contratacao.findMany({
-            where: {
-                OR: [
-                    { contratanteId: usuarioId },
-                    { contratadoId: usuarioId }
-                ]
-            },
-            skip,
-            take: pageSize
-        });
-    },
-
-
-    get_contratacao_user_by_status(userid: string, status: StatusContratacao, page = 1, pageSize = 20) {
-        const skip = (page - 1) * pageSize;
-        return prisma.contratacao.findMany({
-            where: { status , OR: [
-                { contratanteId: userid },
-                { contratadoId: userid }
-            ]},
-            skip,
-            take: pageSize
-        });
-    },
-
-    get_usersId_by_contratacaoId(id: string) {
-        return prisma.contratacao.findUnique({
-            where: { id },
-            select: {
-                contratanteId: true,
-                contratadoId: true
-            }
-        });
+  // papel "contratante": eu contratei | "contratado": pedidos nos meus serviços | sem papel: os dois
+  listar_por_usuario(
+    usuarioId: string,
+    opcoes: {
+      status?: StatusContratacao;
+      papel?: "contratante" | "contratado";
+      page?: number;
+      pageSize?: number;
     }
+  ) {
+    const { status, papel, page = 1, pageSize = 20 } = opcoes;
 
+    const vinculo =
+      papel === "contratante"
+        ? { contratanteId: usuarioId }
+        : papel === "contratado"
+          ? { servico: { contratadoId: usuarioId } }
+          : {
+              OR: [{ contratanteId: usuarioId }, { servico: { contratadoId: usuarioId } }],
+            };
 
+    return prisma.contratacao.findMany({
+      where: { ...(status ? { status } : {}), ...vinculo },
+      include: includeResumo,
+      orderBy: { criadoEm: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+  },
 };

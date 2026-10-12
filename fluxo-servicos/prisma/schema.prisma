@@ -97,6 +97,8 @@ model Avaliacao {
   nota          Int
   comentario    String?
   criadoEm      DateTime    @default(now())
+
+  @@unique([contratacaoId, autorId])
 }
 
 model Denuncia {
