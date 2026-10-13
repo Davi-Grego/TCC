@@ -4,13 +4,14 @@ import { servicoRepository } from "@/lib/repositories/servicoRepository";
 import { NaoEncontradoError, NaoAutorizadoError, RegraDeNegocioError } from "@/lib/errors";
 
 type Papel = "contratante" | "contratado";
+// "ambos": qualquer parte da contratação pode fazer a mudança
+type Autor = Papel | "ambos";
 
 // Máquina de estados: origem -> destino -> quem pode fazer a mudança.
-// Pra mudar o fluxo, mexe só aqui.
-const TRANSICOES: Partial<Record<StatusContratacao, Partial<Record<StatusContratacao, Papel>>>> = {
+const TRANSICOES: Partial<Record<StatusContratacao, Partial<Record<StatusContratacao, Autor>>>> = {
   PENDENTE: {
-    ACEITA: "contratado",     // RF09 aceitar
-    CANCELADA: "contratado",  // RF09 recusar
+    ACEITA: "contratado",  // RF09 aceitar
+    CANCELADA: "ambos",    // RF09 recusar (contratado) | RF17 cancelar (contratante)
   },
   ACEITA: {
     EM_ANDAMENTO: "contratado", // opcional: remove se não quiser esse passo
@@ -65,11 +66,17 @@ export const contratacaoService = {
   async transicionar(usuarioId: string, id: string, novoStatus: StatusContratacao) {
     const c = await carregarParte(usuarioId, id);
 
+    if (novoStatus === "CANCELADA" && c.status !== "PENDENTE") {
+      throw new RegraDeNegocioError("Só dá pra cancelar enquanto a contratação aguarda resposta");
+    }
+
     const exigido = TRANSICOES[c.status]?.[novoStatus];
     if (!exigido) {
       throw new RegraDeNegocioError(`Não é possível mudar de ${c.status} para ${novoStatus}`);
     }
-    if (papelDo(usuarioId, c) !== exigido) {
+
+    const papel = papelDo(usuarioId, c);
+    if (exigido !== "ambos" && papel !== exigido) {
       throw new NaoAutorizadoError(`Só o ${exigido} pode fazer essa mudança`);
     }
 

@@ -3,6 +3,24 @@ import { servicoService } from "@/lib/services/servicoService";
 import { getUsuarioAutenticado } from "@/lib/auth/getUsuarioAutenticado";
 import { tratarErro } from "@/lib/http/tratarErro";
 
+// GET: Discover (todos) | GET ?meus=1: só os meus serviços (aba Projetos)
+export async function GET(req: NextRequest) {
+  try {
+    const usuario = await getUsuarioAutenticado(req);
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const meus = searchParams.get("meus") === "1";
+
+    const servicos = await servicoService.listarServicos({
+      contratadoId: meus ? usuario.id : undefined,
+      page,
+    });
+    return NextResponse.json({ servicos });
+  } catch (err) {
+    return tratarErro(err);
+  }
+}
+
 // RF05 — criar serviço. O dono vem do token, nunca do body.
 export async function POST(req: NextRequest) {
   try {

@@ -2,7 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { StatusContratacao } from "@prisma/client";
 
 const includeResumo = {
-  servico: { select: { id: true, titulo: true, preco: true, contratadoId: true } },
+  servico: {
+    select: {
+      id: true,
+      titulo: true,
+      preco: true,
+      contratadoId: true,
+      contratado: { select: { id: true, nome: true } },
+    },
+  },
   contratante: { select: { id: true, nome: true } },
 } as const;
 

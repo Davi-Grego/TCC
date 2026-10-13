@@ -11,7 +11,7 @@ const navItems = [
   { href: "/discover", label: "Discover" },
   { href: "/projetos", label: "Projetos" },
   { href: "/contratacoes", label: "Contratações" },
-  { href: "/profile", label: "Perfil" },
+  { href: "/perfil", label: "Perfil" },
 ];
 
 function iniciais(nome: string) {

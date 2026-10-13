@@ -1,25 +1,28 @@
-"use client";
+import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
+import { AuthProvider } from "@/lib/firebase/AuthProvider";
+import "./globals.css";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/firebase/AuthProvider";
-import { Sidebar } from "@/components/Sidebar";
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+});
 
-// Todas as páginas dentro de (app) passam por aqui: sem sessão, volta pro login.
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { usuario, carregando } = useAuth();
-  const router = useRouter();
+export const metadata: Metadata = {
+  title: "Fluxo Serviços",
+  description: "App de prestação de serviços",
+};
 
-  useEffect(() => {
-    if (!carregando && !usuario) router.replace("/login");
-  }, [carregando, usuario, router]);
-
-  if (carregando || !usuario) return null;
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex min-h-screen bg-[#f7f8fc] font-mono">
-      <Sidebar usuario={usuario} />
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
+    <html lang="pt-BR" className={jetbrainsMono.variable}>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }

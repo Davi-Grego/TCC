@@ -1,4 +1,16 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma";
+
+// Formato único de serviço devolvido pelo repository (create, update e leituras)
+const selectServico = {
+  id: true,
+  titulo: true,
+  descricao: true,
+  preco: true,
+  criadoEm: true,
+  contratadoId: true,
+  categoria: { select: { id: true, nome: true } },
+  contratado: { select: { id: true, nome: true } },
+} as const;
 
 export const servicoRepository = {
   create_servico(dados: {
@@ -8,104 +20,47 @@ export const servicoRepository = {
     contratadoId: string;
     categoriaId: string;
   }) {
-    return prisma.servico.create({
-      data: dados,
-    });
+    return prisma.servico.create({ data: dados, select: selectServico });
   },
 
-  get_servicos(page = 1, pageSize = 20) {
-  const skip = (page - 1) * pageSize;
-
-  return prisma.servico.findMany({
-    select: {
-      id: true,
-      titulo: true,
-      descricao: true,
-      preco: true,
-      criadoEm: true,
-      categoria: {
-        select: {
-          id: true,
-          nome: true,
-        },
-      },
-      contratado: {
-        select: {
-          id: true,
-          nome: true,
-        },
-      },
-    },
-    orderBy: {
-      criadoEm: "desc",
-    },
-    skip,
-    take: pageSize,
-  });
-},
-
-  get_contratadoid_by_id(id: string) {
-    return prisma.servico.findUnique({
-      where: {id: id}, 
-      select: {contratadoId: true}
+  // sem contratadoId: todos (Discover). Com contratadoId: só os do usuário (Projetos).
+  get_servicos(opts: { contratadoId?: string; page?: number; pageSize?: number } = {}) {
+    const { contratadoId, page = 1, pageSize = 20 } = opts;
+    return prisma.servico.findMany({
+      where: contratadoId ? { contratadoId } : undefined,
+      select: selectServico,
+      orderBy: { criadoEm: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
   },
 
   get_servicosPorCategoria(categoriaId: string, page = 1, pageSize = 20) {
-  const skip = (page - 1) * pageSize;
-  return prisma.servico.findMany({
-    where: { categoriaId },
-    select: {
-      id: true,
-      titulo: true,
-      descricao: true,
-      preco: true,
-      criadoEm: true,
-    },
-    orderBy: { criadoEm: "desc" },
-    skip,
-    take: pageSize,
-  });
-},
-
-  // get_titulo_servico_by_id(id: string) {
-  //   return prisma.servico.findUnique({
-  //     where: { id },
-  //     select: { titulo: true },
-  //   });
-  // },
-
-  // get_servico_by_id(id: string) {
-  //   return prisma.servico.findUnique({
-  //     where: {
-  //       id,
-  //     },
-  //   });
-  // },
-
-  update_servico(id: string, dados: {
-    titulo?: string;
-    descricao?: string;
-    preco?: number;
-  }) {
-    return prisma.servico.update({
-      where: {
-        id,
-      },
-      data: dados,
+    return prisma.servico.findMany({
+      where: { categoriaId },
+      select: selectServico,
+      orderBy: { criadoEm: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
+  },
+
+  get_contratadoid_by_id(id: string) {
+    return prisma.servico.findUnique({ where: { id }, select: { contratadoId: true } });
+  },
+
+  update_servico(
+    id: string,
+    dados: { titulo?: string; descricao?: string; preco?: number; categoriaId?: string }
+  ) {
+    return prisma.servico.update({ where: { id }, data: dados, select: selectServico });
   },
 
   delete_servico(id: string) {
-    return prisma.servico.delete({
-      where: {
-        id,
-      },
-    });
+    return prisma.servico.delete({ where: { id } });
   },
 
   contar_contratacoes(servicoId: string) {
-  return prisma.contratacao.count({ where: { servicoId } });
+    return prisma.contratacao.count({ where: { servicoId } });
   },
-
 };

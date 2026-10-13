@@ -1,15 +1,69 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Star, ShieldCheck, Zap } from "lucide-react";
+import { useAuth } from "@/lib/firebase/AuthProvider";
 
 export default function Home() {
+  const { usuario, carregando } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!carregando && usuario) router.replace("/discover");
+  }, [carregando, usuario, router]);
+
+  // enquanto o Firebase verifica a sessão, não mostra nada
+  if (carregando || usuario) return null;
+
   return (
-    <div className="flex flex-col w-full pb-24 font-mono">
+    <div className="flex flex-col w-full pb-24 font-mono min-h-screen bg-[#f7f8fc]">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full bg-[#f7f8fc]/80 backdrop-blur-md border-b border-[#314c53]/10 px-8 lg:px-20 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#010300] flex items-center justify-center rounded-sm">
+            <span className="text-[#f7f8fc] font-black text-xl leading-none">F</span>
+          </div>
+          <span className="text-[#010300] font-black tracking-tighter text-xl">
+            FLUXOSERVIÇOS
+          </span>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-8 text-xs font-bold text-[#314c53] uppercase tracking-widest">
+          <Link href="/discover" className="hover:text-[#5a7f78] transition-colors">
+            Descobrir
+          </Link>
+          <a href="#vantagens" className="hover:text-[#5a7f78] transition-colors">
+            Vantagens
+          </a>
+          <Link href="/login" className="hover:text-[#5a7f78] transition-colors">
+            Sou Profissional
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-4">
+          <Link
+            href="/login"
+            className="text-xs font-bold text-[#314c53] uppercase tracking-widest hover:text-[#010300] transition-colors hidden sm:block"
+          >
+            Entrar
+          </Link>
+          <Link
+            href="/login"
+            className="bg-[#010300] text-[#f7f8fc] px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-[#314c53] transition-colors rounded-sm"
+          >
+            Começar
+          </Link>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center px-8 lg:px-20 overflow-hidden bg-[#f7f8fc]">
+      <section className="relative min-h-[80vh] flex items-center px-8 lg:px-20 overflow-hidden">
         {/* Abstract geometric element */}
         <div className="absolute top-0 right-0 w-[40%] h-full bg-[#5a7f78]/10 transform origin-top-right skew-x-[-15deg] translate-x-20 hidden lg:block" />
         
-        <div className="relative z-10 max-w-4xl pt-24 lg:pt-0">
+        <div className="relative z-10 max-w-4xl pt-12 lg:pt-0">
           <div className="inline-flex items-center gap-2 py-1.5 px-4 bg-[#bbdec6]/30 border border-[#5a7f78]/20 text-[#314c53] text-xs font-bold tracking-widest uppercase mb-8 rounded-full">
             <span className="w-2 h-2 rounded-full bg-[#5a7f78] animate-pulse"></span>
             Acesso Restrito
@@ -25,18 +79,24 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="group flex items-center justify-center gap-3 bg-[#010300] text-[#f7f8fc] px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-[#314c53] transition-all duration-300 rounded-sm">
+            <Link
+              href="/discover"
+              className="group flex items-center justify-center gap-3 bg-[#010300] text-[#f7f8fc] px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-[#314c53] transition-all duration-300 rounded-sm"
+            >
               Encontrar Especialista
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button className="bg-transparent border-2 border-[#314c53] text-[#314c53] px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-[#314c53] hover:text-[#f7f8fc] transition-all duration-300 rounded-sm">
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center justify-center bg-transparent border-2 border-[#314c53] text-[#314c53] px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-[#314c53] hover:text-[#f7f8fc] transition-all duration-300 rounded-sm"
+            >
               Sou Profissional
-            </button>
+            </Link>
           </div>
         </div>
 
         {/* Hero Decorative Area */}
-        <div className="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 w-[40%] h-[70vh]">
+        <div className="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 w-[40%] h-[60vh]">
             <div className="w-full h-full relative grid grid-cols-2 gap-4">
                <div className="bg-[#314c53] rounded-tl-3xl rounded-br-3xl overflow-hidden relative group">
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40 mix-blend-overlay group-hover:opacity-60 transition-opacity duration-500"></div>
@@ -65,9 +125,9 @@ export default function Home() {
             <h2 className="text-4xl lg:text-5xl text-[#f7f8fc] font-black mb-4 tracking-tight">Demandas em alta</h2>
             <p className="text-[#bbdec6]/80 font-medium text-lg">Especialistas prontos para resolver seus desafios mais complexos.</p>
           </div>
-          <button className="text-sm font-bold tracking-widest uppercase text-[#5a7f78] hover:text-[#bbdec6] transition-colors flex items-center gap-2">
+          <Link href="/discover" className="text-sm font-bold tracking-widest uppercase text-[#5a7f78] hover:text-[#bbdec6] transition-colors flex items-center gap-2 w-fit">
             Ver todas categorias <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -76,19 +136,19 @@ export default function Home() {
             { title: "UI/UX Design Avançado", desc: "Interfaces focadas em conversão.", color: "bg-[#5a7f78]" },
             { title: "Arquitetura Cloud", desc: "Infraestrutura escalável e segura.", color: "bg-[#010300] border border-[#314c53]" },
           ].map((service, idx) => (
-            <div key={idx} className={`group cursor-pointer p-8 rounded-xl ${service.color} hover:-translate-y-2 transition-transform duration-300`}>
+            <Link href="/discover" key={idx} className={`block group cursor-pointer p-8 rounded-xl ${service.color} hover:-translate-y-2 transition-transform duration-300`}>
               <div className="w-12 h-12 bg-[#f7f8fc]/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[#bbdec6]/20 transition-colors">
                 <Zap className="text-[#bbdec6] w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-[#f7f8fc] mb-3">{service.title}</h3>
               <p className="text-sm text-[#bbdec6]/70">{service.desc}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
       {/* Value Proposition */}
-      <section className="px-8 lg:px-20 py-32 bg-[#f7f8fc] text-[#010300]">
+      <section id="vantagens" className="px-8 lg:px-20 py-32 bg-[#f7f8fc] text-[#010300]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20 items-center">
           <div className="w-full lg:w-1/2">
             <div className="inline-block p-3 bg-[#bbdec6]/30 rounded-2xl mb-6">

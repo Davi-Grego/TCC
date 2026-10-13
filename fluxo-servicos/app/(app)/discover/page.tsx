@@ -106,11 +106,10 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3 py-1 text-xs transition ${
-        ativo
-          ? "border-[#314c53] bg-[#314c53] text-[#f7f8fc]"
-          : "border-[#314c53]/20 bg-white text-[#314c53] hover:border-[#5a7f78]"
-      }`}
+      className={`rounded-full border px-3 py-1 text-xs transition ${ativo
+        ? "border-[#314c53] bg-[#314c53] text-[#f7f8fc]"
+        : "border-[#314c53]/20 bg-white text-[#314c53] hover:border-[#5a7f78]"
+        }`}
     >
       {children}
     </button>

@@ -14,8 +14,8 @@ export const servicoService = {
     return servicoRepository.create_servico({ ...dados, titulo: dados.titulo.trim() });
   },
 
-  listarServicos(page?: number, pageSize?: number) {
-    return servicoRepository.get_servicos(page, pageSize);
+  listarServicos(opts: { contratadoId?: string; page?: number } = {}) {
+    return servicoRepository.get_servicos(opts);
   },
 
   listarPorCategoria(categoriaId: string, page?: number, pageSize?: number) {
