@@ -23,4 +23,39 @@ export const avaliacaoRepository = {
       orderBy: { criadoEm: "desc" },
     });
   },
+
+  // RF16: Nova função para buscar a média
+  get_media_by_usuario(usuarioId: string) {
+    return prisma.avaliacao.aggregate({
+      where: {
+        contratacao: {
+          servico: {
+            contratadoId: usuarioId,
+          },
+        },
+        // Exclui auto-avaliação para não corromper a nota do prestador
+        autorId: { not: usuarioId },
+      },
+      _avg: { nota: true },
+      _count: { nota: true },
+    });
+  },
+
+  get_avaliacoes_recebidas(usuarioId: string) {
+    return prisma.avaliacao.findMany({
+      where: {
+        contratacao: { servico: { contratadoId: usuarioId } },
+        autorId: { not: usuarioId },
+      },
+      select: {
+        id: true,
+        nota: true,
+        comentario: true,
+        criadoEm: true,
+        autor: { select: { id: true, nome: true } },
+        contratacao: { select: { servico: { select: { titulo: true } } } },
+      },
+      orderBy: { criadoEm: "desc" },
+    });
+  },
 };

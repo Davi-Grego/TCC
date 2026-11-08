@@ -37,6 +37,7 @@ export default function DiscoverPage() {
     : servicos;
 
   async function contratar(servico: Servico) {
+    if (contratandoId !== null) return;
     setErro(null);
     setContratandoId(servico.id);
     try {
@@ -54,7 +55,7 @@ export default function DiscoverPage() {
   return (
     <main className="mx-auto max-w-6xl px-8 py-10">
       <header>
-        <h1 className="text-2xl font-medium text-[#010300]">Discover</h1>
+        <h1 className="text-2xl font-medium text-[#010300]">Descobrir</h1>
         <p className="mt-1 text-sm text-[#314c53]/70">Serviços disponíveis para contratação</p>
       </header>
 
@@ -80,13 +81,9 @@ export default function DiscoverPage() {
       ) : (
         <section className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {visiveis.map((s) => (
-            <ServicoCard
-              key={s.id}
-              servico={s}
-              ehMeu={s.contratadoId === usuario?.id}
-              contratando={contratandoId === s.id}
-              onContratar={() => contratar(s)}
-            />
+            <div key={s.id}>
+              <ServicoCard servico={s} />
+            </div>
           ))}
         </section>
       )}

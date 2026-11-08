@@ -5,7 +5,7 @@ import { tratarErro } from "@/lib/http/tratarErro";
 
 type Params = { params: Promise<{ id: string }> };
 
-// RF12 — as duas partes podem avaliar, uma vez cada, após CONCLUIDA
+// RF12 — quem contratou pode avaliar uma vez após a conclusão
 export async function POST(req: NextRequest, { params }: Params) {
   try {
     const { id } = await params;

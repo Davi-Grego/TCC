@@ -37,22 +37,38 @@ model Usuario {
   bloqueadoEm DateTime?
   criadoEm    DateTime  @default(now())
 
-  perfil       Perfil?
-  servicos     Servico[]     @relation("ServicosDoContratado")
-  contratacoes Contratacao[] @relation("ContratacoesDoContratante")
-  avaliacoes   Avaliacao[]   @relation("AvaliacoesEscritas")
-  denuncias    Denuncia[]    @relation("DenunciasFeitas")
-  notificacoes Notificacao[]
+  perfil            Perfil?
+  projetosPortfolio ProjetoPortfolio[]
+  servicos          Servico[]          @relation("ServicosDoContratado")
+  contratacoes      Contratacao[]      @relation("ContratacoesDoContratante")
+  avaliacoes        Avaliacao[]        @relation("AvaliacoesEscritas")
+  denuncias         Denuncia[]         @relation("DenunciasFeitas")
+  notificacoes      Notificacao[]
 }
 
 model Perfil {
-  id          String  @id @default(uuid())
-  usuario     Usuario @relation(fields: [usuarioId], references: [id])
-  usuarioId   String  @unique
-  bio         String?
-  fotoUrl     String?
-  telefone    String?
-  localizacao String?
+  id           String  @id @default(uuid())
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId    String  @unique
+  bio          String?
+  fotoUrl      String?
+  fotoConteudo Bytes?
+  fotoMimeType String?
+  telefone     String?
+  localizacao  String?
+}
+
+model ProjetoPortfolio {
+  id             String   @id @default(uuid())
+  usuario        Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId      String
+  titulo         String
+  descricao      String
+  imagem         Bytes?
+  imagemMimeType String?
+  criadoEm       DateTime @default(now())
+
+  @@index([usuarioId, criadoEm])
 }
 
 model Categoria {
@@ -76,14 +92,18 @@ model Servico {
 }
 
 model Contratacao {
-  id            String            @id @default(uuid())
-  servico       Servico           @relation(fields: [servicoId], references: [id])
-  servicoId     String
-  contratante   Usuario           @relation("ContratacoesDoContratante", fields: [contratanteId], references: [id])
-  contratanteId String
-  status        StatusContratacao @default(PENDENTE)
-  criadoEm      DateTime          @default(now())
-  concluidoEm   DateTime?
+  id                       String            @id @default(uuid())
+  servico                  Servico           @relation(fields: [servicoId], references: [id])
+  servicoId                String
+  contratante              Usuario           @relation("ContratacoesDoContratante", fields: [contratanteId], references: [id])
+  contratanteId            String
+  status                   StatusContratacao @default(PENDENTE)
+  criadoEm                 DateTime          @default(now())
+  concluidoEm              DateTime?
+  comprovantePagamento     Bytes?
+  comprovantePagamentoTipo String?
+  comprovanteConclusao     Bytes?
+  comprovanteConclusaoTipo String?
 
   avaliacoes Avaliacao[]
 }

@@ -14,8 +14,16 @@ export const servicoService = {
     return servicoRepository.create_servico({ ...dados, titulo: dados.titulo.trim() });
   },
 
-  listarServicos(opts: { contratadoId?: string; page?: number } = {}) {
+  listarServicos(opts: { contratadoId?: string; page?: number; pageSize?: number } = {}) {
     return servicoRepository.get_servicos(opts);
+  },
+
+  listarDoPrestador(usuarioId: string) {
+    return servicoRepository.get_servicos_do_prestador(usuarioId);
+  },
+
+  obterServicoPorId(servicoId: string) {
+    return servicoRepository.get_servico_by_id(servicoId);
   },
 
   listarPorCategoria(categoriaId: string, page?: number, pageSize?: number) {

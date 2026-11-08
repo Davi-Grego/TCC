@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FirebaseError } from "firebase/app";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/client";
 
@@ -24,11 +25,16 @@ export function LoginButton() {
     setErro(null);
     try {
       await signInWithPopup(auth, googleProvider);
-      // O AuthProvider escuta onAuthStateChanged e sincroniza sozinho.
-      // (deixa loading=true até o redirect acontecer)
     } catch (err) {
       console.error(err);
-      setErro("Não deu pra entrar. Tenta de novo.");
+      if (err instanceof FirebaseError && err.code === "auth/unauthorized-domain") {
+        setErro("Este domínio do túnel não está autorizado no Firebase Authentication.");
+      } else if (err instanceof FirebaseError && err.code === "auth/popup-blocked") {
+        setErro("O navegador bloqueou a janela de login. Permita pop-ups e tente novamente.");
+      } else {
+        setErro("Não deu pra entrar. Tenta de novo.");
+      }
+    } finally {
       setLoading(false);
     }
   }

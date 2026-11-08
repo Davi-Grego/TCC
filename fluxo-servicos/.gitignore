@@ -47,5 +47,6 @@ next-env.d.ts
 service_account.json
 
 /prisma/migrations
-
+!/prisma/migrations/
+!/prisma/migrations/**
 

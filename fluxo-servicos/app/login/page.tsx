@@ -28,7 +28,7 @@ export default function LoginPage() {
           }}
         />
 
-        <span className="relative font-mono text-sm text-[#f7f8fc]">Fluxo</span>
+        <span className="relative font-mono text-sm text-[#f7f8fc]"> <a href="/">Fluxo</a></span>
 
         <div className="relative max-w-sm">
           <h1 className="font-mono text-4xl font-medium leading-tight text-[#f7f8fc]">

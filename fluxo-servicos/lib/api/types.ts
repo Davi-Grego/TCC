@@ -13,11 +13,24 @@ export type Servico = {
   contratado: { id: string; nome: string };
 };
 
+export type AvaliacaoContratacao = {
+  id: string;
+  autorId: string;
+  nota: number;
+  comentario: string | null;
+  criadoEm: string;
+  autor: { id: string; nome: string };
+};
+
 export type Contratacao = {
   id: string;
   status: StatusContratacao;
   criadoEm: string;
   concluidoEm: string | null;
+  comprovantePagamentoUrl: string | null;
+  comprovanteConclusaoUrl: string | null;
+  avaliacaoFeitaPeloUsuario: boolean;
+  avaliacoes: AvaliacaoContratacao[];
   servico: {
     id: string;
     titulo: string;

@@ -35,6 +35,21 @@ export const servicoRepository = {
     });
   },
 
+  get_servicos_do_prestador(contratadoId: string) {
+    return prisma.servico.findMany({
+      where: { contratadoId },
+      select: {
+        id: true,
+        titulo: true,
+        descricao: true,
+        preco: true,
+        criadoEm: true,
+        categoria: { select: { nome: true } },
+      },
+      orderBy: { criadoEm: "desc" },
+    });
+  },
+
   get_servicosPorCategoria(categoriaId: string, page = 1, pageSize = 20) {
     return prisma.servico.findMany({
       where: { categoriaId },
@@ -60,6 +75,10 @@ export const servicoRepository = {
     return prisma.servico.delete({ where: { id } });
   },
 
+  get_servico_by_id(id: string) {
+    return prisma.servico.findUnique({ where: { id }, select: selectServico });
+  },
+  
   contar_contratacoes(servicoId: string) {
     return prisma.contratacao.count({ where: { servicoId } });
   },

@@ -19,6 +19,13 @@ export const usuarioRepository = {
     return prisma.usuario.findUnique({ where: { id } });
   },
 
+  get_perfil_publico(id: string) {
+    return prisma.usuario.findUnique({
+      where: { id },
+      select: { id: true, nome: true, email: true, papel: true, criadoEm: true },
+    });
+  },
+
   bloquear(id: string) {
     return prisma.usuario.update({
       where: { id },

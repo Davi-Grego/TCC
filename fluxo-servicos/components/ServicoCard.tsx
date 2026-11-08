@@ -1,42 +1,81 @@
-import type { Servico } from "@/lib/api/types";
-import { formatarPreco } from "@/lib/format";
+"use client";
 
-type Props = {
+import { useState } from "react";
+import Link from "next/link";
+import { Flag } from "lucide-react";
+import DenunciaModal from "./DenunciaModal";
+
+// Adicione aqui a tipagem correta do seu Serviço conforme a sua API
+interface Servico {
+  id: string;
+  titulo: string;
+  descricao: string;
+  preco: number;
+  categoria?: { nome: string };
+  contratadoId: string;
+  // ...outros campos que sua API retorna
+}
+
+interface Props {
   servico: Servico;
-  ehMeu: boolean;
-  contratando: boolean;
-  onContratar: () => void;
-};
+  ehDono?: boolean; // Para saber se é "Seu Serviço" igual na imagem
+}
 
-export function ServicoCard({ servico, ehMeu, contratando, onContratar }: Props) {
+export function ServicoCard({ servico, ehDono = false }: Props) {
+  const [modalDenuncia, setModalDenuncia] = useState(false);
+
   return (
-    <article className="flex flex-col justify-between rounded-xl border border-[#314c53]/10 bg-white p-6 shadow-sm transition hover:border-[#5a7f78]/50">
-      <div>
-        <span className="rounded-full bg-[#bbdec6]/40 px-2.5 py-0.5 text-[11px] text-[#314c53]">
-          {servico.categoria.nome}
-        </span>
-        <h3 className="mt-3 text-lg font-medium text-[#010300]">{servico.titulo}</h3>
-        <p className="mt-2 line-clamp-3 text-sm text-[#314c53]/75">{servico.descricao}</p>
-      </div>
-
-      <div className="mt-6 flex items-end justify-between gap-4 border-t border-[#314c53]/10 pt-4">
-        <div className="min-w-0">
-          <p className="truncate text-xs text-[#314c53]/60">por {servico.contratado.nome}</p>
-          <p className="mt-1 text-base font-medium text-[#010300]">{formatarPreco(servico.preco)}</p>
-        </div>
-
-        {ehMeu ? (
-          <span className="text-xs text-[#314c53]/50">seu serviço</span>
-        ) : (
-          <button
-            onClick={onContratar}
-            disabled={contratando}
-            className="shrink-0 rounded-md bg-[#314c53] px-4 py-2 text-sm font-medium text-[#f7f8fc] transition hover:bg-[#010300] disabled:opacity-60"
+    <>
+      <div className="flex flex-col bg-white border border-[#314c53]/10 rounded-xl p-6 relative font-mono transition-all hover:shadow-md">
+        
+        {/* RF18: Botão de Denúncia Discreto no Canto */}
+        {!ehDono && (
+          <button 
+            onClick={() => setModalDenuncia(true)}
+            className="absolute top-6 right-6 text-[#314c53]/30 hover:text-red-500 transition-colors"
+            title="Denunciar este serviço"
           >
-            {contratando ? "Enviando..." : "Contratar"}
+            <Flag className="w-4 h-4" />
           </button>
         )}
+
+        {servico.categoria && (
+          <span className="w-fit mb-4 px-3 py-1 bg-[#bbdec6]/30 text-[#5a7f78] text-[10px] font-bold uppercase tracking-wider rounded-full">
+            {servico.categoria.nome}
+          </span>
+        )}
+
+        <h3 className="text-lg font-bold text-[#010300] mb-3 line-clamp-1 pr-6">{servico.titulo}</h3>
+        <p className="text-sm text-[#314c53]/80 line-clamp-3 mb-6 flex-grow">{servico.descricao}</p>
+
+        <div className="flex items-end justify-between border-t border-[#314c53]/10 pt-4 mt-auto">
+          <div>
+            <p className="text-[11px] text-[#314c53]/60 mb-1">Valor base</p>
+            <p className="text-lg font-black text-[#314c53]">
+              {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(servico.preco || 0)}
+            </p>
+          </div>
+          
+          {ehDono ? (
+            <span className="text-xs text-[#314c53]/50">seu serviço</span>
+          ) : (
+            <Link 
+              href={`/servicos/${servico.id}`} // Vai para a página de detalhes!
+              className="bg-[#314c53] text-[#f7f8fc] px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-[#010300] transition-colors rounded-sm"
+            >
+              Ver Serviço
+            </Link>
+          )}
+        </div>
       </div>
-    </article>
+
+      {modalDenuncia && (
+        <DenunciaModal 
+          alvoId={servico.id} 
+          alvoTipo="SERVICO" 
+          onClose={() => setModalDenuncia(false)} 
+        />
+      )}
+    </>
   );
 }

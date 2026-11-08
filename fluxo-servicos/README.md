@@ -150,6 +150,24 @@ http://localhost:3000
 
 Se a porta 3000 estiver ocupada, o Next.js pode abrir outra porta, como 3001.
 
+### Acesso por túnel (ngrok ou localtunnel)
+
+Inicie o túnel apontando para a porta informada pelo Next.js, por exemplo:
+
+```bash
+ngrok http 3000
+# ou
+lt --port 3000
+```
+
+O `next.config.ts` permite os domínios públicos usuais desses túneis em modo de
+desenvolvimento (incluindo `ngrok-free.dev`). Depois de alterar essa configuração,
+reinicie `npm run dev`.
+Para o login Google funcionar, adicione também o domínio exato fornecido pelo
+túnel em Firebase Console → Authentication → Settings → Authorized domains.
+Como o endereço do túnel pode mudar, essa etapa pode precisar ser repetida a
+cada nova sessão.
+
 ## Comandos disponíveis
 
 ```bash
